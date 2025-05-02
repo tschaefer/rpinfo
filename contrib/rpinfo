@@ -1,0 +1,6 @@
+# This is the configuration file /etc/default/rpinfo for the systemd service
+# /etc/systemd/system/rpinfo.service
+
+#RPINFO_HOST="0.0.0.0"
+#RPINFO_PORT="8080"
+#RPINFO_ARGS="--auth --token fae7ddc770c14499d5de71fdeab9a3a29d7c2751a4153fba525f6874df9f954a"

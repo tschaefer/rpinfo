@@ -1,0 +1,20 @@
+# /etc/systemd/system/rpinfo.service
+[Unit]
+Description=Raspberry Pi information service
+After=network.target
+
+[Service]
+Type=simple
+Environment=RPINFO_HOST=127.0.0.1 RPINFO_PORT=8080 RPINFO_ARGS=""
+EnvironmentFile=-/etc/default/rpinfo
+ExecStart=/usr/bin/rpinfo server --host $RPINFO_HOST --port $RPINFO_PORT $RPINFO_ARGS
+DynamicUser=true
+Group=video
+ProtectSystem=strict
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE
+DevicePolicy=closed
+DeviceAllow=/dev/vcio r
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
