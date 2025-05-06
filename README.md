@@ -36,11 +36,11 @@ For further configuration, see the command-line options below.
 | `-H`, `--host`  | Host to bind the server to           | `localhost` |
 | `-p`, `--port`  | Port to run the server on            | `8080`      |
 | `-a`, `--auth`  | Enable bearer token authentication   | `false`     |
-| `-t`, `--token` | Bearer token used for authentication | ``          |
-| `-h`, `--help`  | Show help for the server command     | -           |
+| `-t`, `--token` | Bearer token used for authentication |             |
+| `-h`, `--help`  | Show help for the server command     |             |
 
 Additional a systemd service file and environment file are provided in the
-`contrib` directory for automatic startup on boot and management of the
+[contrib directory](https://github.com/tschaefer/rpinfo/tree/main/contrib) for automatic startup on boot and management of the
 server.
 
 ## API Endpoints
