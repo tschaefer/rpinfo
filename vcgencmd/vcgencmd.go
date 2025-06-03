@@ -30,8 +30,7 @@ func (r Cmd) Run(args ...string) map[string]string {
 	output := strings.TrimSpace(string(out))
 
 	outputMap := make(map[string]string)
-	lines := strings.Split(output, "\n")
-	for _, line := range lines {
+	for line := range strings.SplitSeq(output, "\n") {
 		parts := strings.SplitN(line, "=", 2)
 		if len(parts) != 2 {
 			log.Printf("skipping data: %s", line)

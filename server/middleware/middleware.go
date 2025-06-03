@@ -5,18 +5,35 @@ Licensed under the MIT license, see LICENSE in the project root for details.
 package middleware
 
 import (
+	"encoding/json"
 	"net/http"
 	"strings"
 
 	"github.com/tschaefer/rpinfo/version"
 )
 
-func Headers(next http.HandlerFunc) http.HandlerFunc {
+func JSONError(w http.ResponseWriter, status int, message string) {
+	w.WriteHeader(status)
+	json.NewEncoder(w).Encode(map[string]string{"detail": message})
+}
+
+func ResponseHeaders(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("X-Rpinfo-Commit", version.Commit())
 		w.Header().Set("X-Rpinfo-Version", version.Release())
 		w.Header().Set("Content-Type", "application/json")
 
+		next(w, r)
+	}
+}
+
+func RequestHeaders(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		accept := r.Header.Get("Accept")
+		if accept == "" || (accept != "application/json" && accept != "*/*") {
+			JSONError(w, http.StatusNotAcceptable, "not acceptable")
+			return
+		}
 		next(w, r)
 	}
 }
@@ -31,7 +48,7 @@ func Authorization(auth bool, token string, next http.HandlerFunc) http.HandlerF
 		bearer := r.Header.Get("Authorization")
 		parts := strings.SplitN(bearer, " ", 2)
 		if len(parts) != 2 || parts[0] != "Bearer" || parts[1] != token {
-			http.Error(w, "401 unauthorized", http.StatusUnauthorized)
+			JSONError(w, http.StatusUnauthorized, "unauthorized")
 			return
 		}
 
@@ -41,8 +58,9 @@ func Authorization(auth bool, token string, next http.HandlerFunc) http.HandlerF
 
 func ApplyAll(auth bool, token string, next http.HandlerFunc) http.HandlerFunc {
 	// middleware is applied in reverse order
-	next = Headers(next)
+	next = RequestHeaders(next)
 	next = Authorization(auth, token, next)
+	next = ResponseHeaders(next)
 
 	return next
 }

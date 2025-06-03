@@ -6,6 +6,7 @@ package handler
 
 import (
 	"encoding/json"
+	"maps"
 	"net/http"
 	"strings"
 
@@ -19,8 +20,9 @@ type Handle struct {
 func runCmd(h Handle, w http.ResponseWriter, args ...string) map[string]string {
 	out := h.Cmd.Run(args...)
 	if out == nil {
-		http.Error(w, "500 internal server error", http.StatusInternalServerError)
-
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(map[string]string{"detail": "internal server error"})
 		return nil
 	}
 
@@ -45,9 +47,7 @@ func (h Handle) Configuration(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		for k, v := range out {
-			config[k] = v
-		}
+		maps.Copy(config, out)
 	}
 
 	json.NewEncoder(w).Encode(config)

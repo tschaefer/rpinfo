@@ -26,6 +26,9 @@ func Run(port string, host string, auth bool, token string) {
 	router.Handle("/voltages", middleware.ApplyAll(auth, token, Handler.Voltages)).Methods(http.MethodGet)
 	router.Handle("/throttled", middleware.ApplyAll(auth, token, Handler.Throttled)).Methods(http.MethodGet)
 
+	router.NotFoundHandler = http.HandlerFunc(handler.NotFoundHandler)
+	router.MethodNotAllowedHandler = http.HandlerFunc(handler.MethodNotAllowedHandler)
+
 	server := &http.Server{
 		Addr:           fmt.Sprintf("%s:%s", host, port),
 		ReadTimeout:    5 * time.Second,

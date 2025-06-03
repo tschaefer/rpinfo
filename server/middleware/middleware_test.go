@@ -19,7 +19,7 @@ func Test_ResponseHeadersAreSet(t *testing.T) {
 	req := httptest.NewRequest("GET", "/temperature", nil)
 	rr := httptest.NewRecorder()
 
-	handler := Headers(func(w http.ResponseWriter, r *http.Request) {})
+	handler := ResponseHeaders(func(w http.ResponseWriter, r *http.Request) {})
 	handler.ServeHTTP(rr, req)
 
 	if rr.Header().Get("X-Rpinfo-Commit") == "" {
@@ -30,6 +30,54 @@ func Test_ResponseHeadersAreSet(t *testing.T) {
 	}
 	if rr.Header().Get("Content-Type") != "application/json" {
 		t.Errorf("Expected Content-Type header to be 'application/json', got %s", rr.Header().Get("Content-Type"))
+	}
+}
+
+func Test_RequestIsRejectedIfAcceptHeaderIsMissing(t *testing.T) {
+	req := httptest.NewRequest("GET", "/temperature", nil)
+	rr := httptest.NewRecorder()
+
+	handler := RequestHeaders(func(w http.ResponseWriter, r *http.Request) {})
+	handler.ServeHTTP(rr, req)
+
+	if rr.Code != http.StatusNotAcceptable {
+		t.Errorf("Expected status code 406, got %d", rr.Code)
+	}
+	if rr.Body.String() != "{\"detail\":\"not acceptable\"}\n" {
+		t.Errorf("Expected body '{\"detail\":\"not acceptable\"}', got %s", rr.Body.String())
+	}
+}
+
+func Test_RequestIsRejectedIfAcceptHeaderIsInvalid(t *testing.T) {
+	req := httptest.NewRequest("GET", "/temperature", nil)
+	req.Header.Set("Accept", "text/plain")
+	rr := httptest.NewRecorder()
+
+	handler := RequestHeaders(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	})
+	handler.ServeHTTP(rr, req)
+
+	if rr.Code != http.StatusNotAcceptable {
+		t.Errorf("Expected status code 406, got %d", rr.Code)
+	}
+	if rr.Body.String() != "{\"detail\":\"not acceptable\"}\n" {
+		t.Errorf("Expected body '{\"detail\":\"not acceptable\"}', got %s", rr.Body.String())
+	}
+}
+
+func Test_RequestIsAcceptedIfAcceptHeaderIsValid(t *testing.T) {
+	req := httptest.NewRequest("GET", "/temperature", nil)
+	req.Header.Set("Accept", "application/json")
+	rr := httptest.NewRecorder()
+
+	handler := RequestHeaders(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	})
+	handler.ServeHTTP(rr, req)
+
+	if rr.Code != http.StatusOK {
+		t.Errorf("Expected status code 200, got %d", rr.Code)
 	}
 }
 
@@ -60,8 +108,8 @@ func Test_AuthorizationIsDeniedIfTokenIsInvalid(t *testing.T) {
 	if rr.Code != http.StatusUnauthorized {
 		t.Errorf("Expected status code 401, got %d", rr.Code)
 	}
-	if rr.Body.String() != "401 unauthorized\n" {
-		t.Errorf("Expected body '401 unauthorized', got %s", rr.Body.String())
+	if rr.Body.String() != "{\"detail\":\"unauthorized\"}\n" {
+		t.Errorf("Expected body '{\"detail\":\"unauthorized\"}', got %s", rr.Body.String())
 	}
 }
 
@@ -77,8 +125,8 @@ func Test_AuthorizationIsDeniedIfNoHeaderPresent(t *testing.T) {
 	if rr.Code != http.StatusUnauthorized {
 		t.Errorf("Expected status code 401, got %d", rr.Code)
 	}
-	if rr.Body.String() != "401 unauthorized\n" {
-		t.Errorf("Expected body '401 unauthorized', got %s", rr.Body.String())
+	if rr.Body.String() != "{\"detail\":\"unauthorized\"}\n" {
+		t.Errorf("Expected body '{\"detail\":\"unauthorized\"}', got %s", rr.Body.String())
 	}
 }
 
