@@ -46,9 +46,14 @@ func Authorization(auth bool, token string, next http.HandlerFunc) http.HandlerF
 		}
 
 		bearer := r.Header.Get("Authorization")
+		if bearer == "" {
+			JSONError(w, http.StatusUnauthorized, "unauthorized")
+			return
+		}
+
 		parts := strings.SplitN(bearer, " ", 2)
 		if len(parts) != 2 || parts[0] != "Bearer" || parts[1] != token {
-			JSONError(w, http.StatusUnauthorized, "unauthorized")
+			JSONError(w, http.StatusForbidden, "forbidden")
 			return
 		}
 

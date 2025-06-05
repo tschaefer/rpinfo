@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
+	"github.com/tschaefer/rpinfo/server/assets"
 	"github.com/tschaefer/rpinfo/server/handler"
 	"github.com/tschaefer/rpinfo/server/middleware"
 	"github.com/tschaefer/rpinfo/vcgencmd"
@@ -25,6 +26,7 @@ func Run(port string, host string, auth bool, token string) {
 	router.Handle("/configuration", middleware.ApplyAll(auth, token, Handler.Configuration)).Methods(http.MethodGet)
 	router.Handle("/voltages", middleware.ApplyAll(auth, token, Handler.Voltages)).Methods(http.MethodGet)
 	router.Handle("/throttled", middleware.ApplyAll(auth, token, Handler.Throttled)).Methods(http.MethodGet)
+	router.PathPrefix("/redoc").Handler(http.StripPrefix("/redoc", http.FileServer(http.FS(assets.StaticContent))))
 
 	router.NotFoundHandler = http.HandlerFunc(handler.NotFoundHandler)
 	router.MethodNotAllowedHandler = http.HandlerFunc(handler.MethodNotAllowedHandler)

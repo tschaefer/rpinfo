@@ -1,0 +1,193 @@
+---
+openapi: 3.1.0
+info:
+  title: RPInfo
+  summary: "Raspberry Pi information 🍌"
+  description: |
+    RPInfo is a lightweight RESTful API server written in Go that exposes
+    detailed system information for Raspberry Pi devices. It utilizes the
+    vcgencmd utility to provide real-time hardware data such as CPU
+    temperature, voltages, firmware configuration and throttling status.
+
+    * Exposes Raspberry Pi system metrics via a clean RESTful API
+    * Supports optional bearer token authentication
+    * Configurable host and port via command-line flags
+    * Fast and efficient Go implementation
+    * Ideal for integration with dashboards, monitoring tools, or automation scripts
+  license:
+    name: MIT License
+    url: https://github.com/tschaefer/semantic-rss-search?tab=MIT-1-ov-file
+  version: 0.1.0
+
+paths:
+  /configuration:
+    get:
+      summary: Get firmware configuration
+      description: Retrieve the current firmware configuration parameters.
+      operationId: getConfiguration
+      security:
+        - BearerToken: []
+      responses:
+        "200":
+          description: Firmware configuration
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: string
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Unauthorized"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Forbidden"
+
+  /temperature:
+    get:
+      summary: Get CPU temperature
+      description: Retrieve the current CPU temperature.
+      operationId: getTemperature
+      security:
+        - BearerToken: []
+      responses:
+        "200":
+          description: CPU temperature
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  temp:
+                    type: string
+                    examples:
+                      - "48.7'C"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Unauthorized"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Forbidden"
+
+  /voltages:
+    get:
+      summary: Get voltages
+      description: Retrieve current voltages.
+      operationId: getVoltages
+      security:
+        - BearerToken: []
+      responses:
+        "200":
+          description: Voltage levels
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  core:
+                    type: string
+                    examples:
+                      - "1.3500V"
+                  sdram_c:
+                    type: string
+                    examples:
+                      - "1.2000V"
+                  sdram_i:
+                    type: string
+                    examples:
+                      - "1.2000V"
+                  sdram_p:
+                    type: string
+                    examples:
+                      - "1.2250V"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Unauthorized"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Forbidden"
+
+  /throttled:
+    get:
+      summary: Get throttling status
+      description: Retrieve throttling status, optionally in a human-readable format.
+      operationId: getThrottled
+      parameters:
+        - name: human
+          in: query
+          description: Return human-readable throttling status
+          required: false
+          schema:
+            type: boolean
+      security:
+        - BearerToken: []
+      responses:
+        "200":
+          description: Throttling status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  throttled:
+                    type: string
+                    examples:
+                      - "0x0"
+                      - "No throttling"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Unauthorized"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Forbidden"
+
+components:
+  schemas:
+    Unauthorized:
+      type: object
+      properties:
+        detail:
+          type: string
+          example: "unauthorized"
+    Forbidden:
+      type: object
+      properties:
+        detail:
+          type: string
+          example: "forbidden"
+  securitySchemes:
+    BearerToken:
+      type: http
+      scheme: bearer
+      bearerFormat: opaque
+      description: |
+        Use a secure random string as a bearer token to authenticate
+        requests. The token should be included in the `Authorization` header
+        as follows:
+        ```
+        Authorization: Bearer <your_token>
+        ```

@@ -54,6 +54,8 @@ server.
 
 All endpoints return JSON-formatted data.
 
+The complete API specification is available at `/redoc`.
+
 ## Security Notes
 
 - If authentication is enabled, all API calls must include the `Authorization`

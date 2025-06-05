@@ -9,6 +9,8 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+
+	"github.com/tschaefer/rpinfo/server/assets"
 )
 
 type mockRunnerSuccess struct{}
@@ -201,5 +203,28 @@ func Test_ThrottledReturnsServerErrorIfCommandFails(t *testing.T) {
 	if status := rr.Code; status != http.StatusInternalServerError {
 		t.Errorf("handler returned wrong status code: got %v want %v",
 			status, http.StatusInternalServerError)
+	}
+}
+
+func Test_RedocReturnsHTML(t *testing.T) {
+	req := httptest.NewRequest("GET", "/redoc", nil)
+	rr := httptest.NewRecorder()
+	handler := http.Handler(http.StripPrefix("/redoc", http.FileServer(http.FS(assets.StaticContent))))
+	handler.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v",
+			status, http.StatusOK)
+	}
+	expected := "<!DOCTYPE html>"
+	if !strings.HasPrefix(rr.Body.String(), expected) {
+		t.Errorf("handler returned unexpected body: got %v want prefix %v",
+			rr.Body.String(), expected)
+	}
+
+	expected = "text/html; charset=utf-8"
+	if contentType := rr.Header().Get("Content-Type"); contentType != expected {
+		t.Errorf("handler returned wrong content type: got %v want %v",
+			contentType, expected)
 	}
 }
