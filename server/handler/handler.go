@@ -100,10 +100,15 @@ func (h Handle) Clock(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		next, stop := iter.Pull(maps.Values(out))
-		defer stop()
+		value := func() string {
+			next, stop := iter.Pull(maps.Values(out))
+			defer stop()
 
-		clock[opt], _ = next()
+			v, _ := next()
+			return v
+		}
+
+		clock[opt] = value()
 	}
 
 	json.NewEncoder(w).Encode(clock)
