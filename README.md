@@ -3,7 +3,7 @@
 **rpinfo** is a lightweight RESTful API server written in Go that exposes
 detailed system information for Raspberry Pi devices. It utilizes the
 `vcgencmd` utility to provide real-time hardware data such as CPU temperature,
-voltages, firmware configuration and throttling status.
+voltages, firmware configuration, throttling status and clock frequencies.
 
 ## Features
 
@@ -51,6 +51,7 @@ server.
 | `/temperature`            | Returns CPU temperature        |
 | `/throttled(?human=true)` | Returns throttling status      |
 | `/voltages`               | Returns voltages               |
+| `/clock`                  | Returns clock frequencies      |
 
 All endpoints return JSON-formatted data.
 

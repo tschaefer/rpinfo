@@ -6,6 +6,7 @@ package handler
 
 import (
 	"encoding/json"
+	"iter"
 	"maps"
 	"net/http"
 	"strings"
@@ -84,4 +85,31 @@ func (h Handle) Throttled(w http.ResponseWriter, r *http.Request) {
 	}
 
 	json.NewEncoder(w).Encode(throttled)
+}
+
+func (h Handle) Clock(w http.ResponseWriter, r *http.Request) {
+	options := []string{
+		"arm", "core", "h264", "isp",
+		"v3d", "uart", "pwm", "emmc",
+		"pixel", "vec", "hdmi", "dpi",
+	}
+	clock := make(map[string]string)
+	for _, opt := range options {
+		out := runCmd(h, w, "measure_clock", opt)
+		if out == nil {
+			return
+		}
+
+		value := func() string {
+			next, stop := iter.Pull(maps.Values(out))
+			defer stop()
+
+			v, _ := next()
+			return v
+		}
+
+		clock[opt] = value()
+	}
+
+	json.NewEncoder(w).Encode(clock)
 }

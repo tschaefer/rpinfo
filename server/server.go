@@ -26,6 +26,7 @@ func Run(port string, host string, auth bool, token string) {
 	router.Handle("/configuration", middleware.ApplyAll(auth, token, Handler.Configuration)).Methods(http.MethodGet)
 	router.Handle("/voltages", middleware.ApplyAll(auth, token, Handler.Voltages)).Methods(http.MethodGet)
 	router.Handle("/throttled", middleware.ApplyAll(auth, token, Handler.Throttled)).Methods(http.MethodGet)
+	router.Handle("/clock", middleware.ApplyAll(auth, token, Handler.Clock)).Methods(http.MethodGet)
 	router.PathPrefix("/redoc").Handler(http.StripPrefix("/redoc", http.FileServer(http.FS(assets.StaticContent))))
 
 	router.NotFoundHandler = http.HandlerFunc(handler.NotFoundHandler)

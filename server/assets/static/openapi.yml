@@ -7,7 +7,8 @@ info:
     RPInfo is a lightweight RESTful API server written in Go that exposes
     detailed system information for Raspberry Pi devices. It utilizes the
     vcgencmd utility to provide real-time hardware data such as CPU
-    temperature, voltages, firmware configuration and throttling status.
+    temperature, voltages, firmware configuration, throttling status and clock
+    frequencies.
 
     * Exposes Raspberry Pi system metrics via a clean RESTful API
     * Supports optional bearer token authentication
@@ -152,6 +153,82 @@ paths:
                     examples:
                       - "0x0"
                       - "No throttling"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Unauthorized"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Forbidden"
+
+  /clock:
+    get:
+      summary: Get clock frequencies
+      description: Retrieve current clock frequencies for various components.
+      operationId: getClock
+      security:
+        - BearerToken: []
+      responses:
+        "200":
+          description: Clock frequencies
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  arm:
+                    type: string
+                    examples:
+                      - "700000000"
+                  core:
+                    type: string
+                    examples:
+                      - "250000000"
+                  dpi:
+                    type: string
+                    examples:
+                      - "0"
+                  emmc:
+                    type: string
+                    examples:
+                      - "200000000"
+                  h264:
+                    type: string
+                    examples:
+                      - "0"
+                  hdmi:
+                    type: string
+                    examples:
+                      - "163683000"
+                  isp:
+                    type: string
+                    examples:
+                      - "0"
+                  pixel:
+                    type: string
+                    examples:
+                      - "337000"
+                  pwm:
+                    type: string
+                    examples:
+                      - "0"
+                  uart:
+                    type: string
+                    examples:
+                      - "47999000"
+                  v3d:
+                    type: string
+                    examples:
+                      - "300000000"
+                  vec:
+                    type: string
+                    examples:
+                      - "108000000"
         "401":
           description: Unauthorized
           content:
