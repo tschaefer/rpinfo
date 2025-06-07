@@ -105,11 +105,11 @@ func Test_AuthorizationIsDeniedIfTokenIsInvalid(t *testing.T) {
 	})
 	handler.ServeHTTP(rr, req)
 
-	if rr.Code != http.StatusUnauthorized {
-		t.Errorf("Expected status code 401, got %d", rr.Code)
+	if rr.Code != http.StatusForbidden {
+		t.Errorf("Expected status code 403, got %d", rr.Code)
 	}
-	if rr.Body.String() != "{\"detail\":\"unauthorized\"}\n" {
-		t.Errorf("Expected body '{\"detail\":\"unauthorized\"}', got %s", rr.Body.String())
+	if rr.Body.String() != "{\"detail\":\"forbidden\"}\n" {
+		t.Errorf("Expected body '{\"detail\":\"forbidden\"}', got %s", rr.Body.String())
 	}
 }
 
