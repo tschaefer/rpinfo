@@ -51,7 +51,7 @@ server.
 | `/temperature`            | Returns CPU temperature        |
 | `/throttled(?human=true)` | Returns throttling status      |
 | `/voltages`               | Returns voltages               |
-| `/frequencies`            | Returns clock frequencies      |
+| `/clock`                  | Returns clock frequencies      |
 
 All endpoints return JSON-formatted data.
 
