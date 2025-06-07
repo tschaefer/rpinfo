@@ -36,6 +36,15 @@ func (m mockRunnerSuccess) Run(args ...string) map[string]string {
 		return map[string]string{"init_uart_clock": "0x2dc6c00", "overlay_prefix": "overlays/", "total_mem": "512"}
 	case "get_throttled":
 		return map[string]string{"throttled": "0x50000"}
+	case "measure_clock":
+		switch args[1] {
+		case "arm":
+			return map[string]string{"freq": "600000000"}
+		case "core":
+			return map[string]string{"freq": "250000000"}
+		default:
+			return map[string]string{"freq": "0"}
+		}
 	default:
 		return nil
 	}
@@ -226,5 +235,40 @@ func Test_RedocReturnsHTML(t *testing.T) {
 	if contentType := rr.Header().Get("Content-Type"); contentType != expected {
 		t.Errorf("handler returned wrong content type: got %v want %v",
 			contentType, expected)
+	}
+}
+
+func Test_MeasureClockReturnsJSON(t *testing.T) {
+	req := httptest.NewRequest("GET", "/measure_clock", nil)
+	rr := httptest.NewRecorder()
+
+	Handler := Handle{Cmd: mockRunnerSuccess{}}
+	handler := http.HandlerFunc(Handler.Clock)
+	handler.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v",
+			status, http.StatusOK)
+	}
+	expected := `{"arm":"600000000","core":"250000000","dpi":"0","emmc":"0","h264":"0","hdmi":"0","isp":"0","pixel":"0","pwm":"0","uart":"0","v3d":"0","vec":"0"}`
+	got := rr.Body.String()
+	got = strings.TrimSpace(got)
+	if got != expected {
+		t.Errorf("handler returned unexpected body: got %v want %v",
+			rr.Body.String(), expected)
+	}
+}
+
+func Test_MeasureClockReturnsServerErrorIfCommandFails(t *testing.T) {
+	req := httptest.NewRequest("GET", "/measure_clock", nil)
+	rr := httptest.NewRecorder()
+
+	Handler := Handle{Cmd: mockRunnerError{}}
+	handler := http.HandlerFunc(Handler.Clock)
+	handler.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusInternalServerError {
+		t.Errorf("handler returned wrong status code: got %v want %v",
+			status, http.StatusInternalServerError)
 	}
 }
