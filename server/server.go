@@ -28,6 +28,7 @@ func Run(port string, host string, auth bool, token string) {
 	router.Handle("/throttled", middleware.ApplyAll(auth, token, Handler.Throttled)).Methods(http.MethodGet)
 	router.Handle("/clock", middleware.ApplyAll(auth, token, Handler.Clock)).Methods(http.MethodGet)
 	router.PathPrefix("/redoc").Handler(http.StripPrefix("/redoc", http.FileServer(http.FS(assets.StaticContent))))
+	router.HandleFunc("/metrics", middleware.Authorization(auth, token, handler.Metrics)).Methods(http.MethodGet)
 
 	router.NotFoundHandler = http.HandlerFunc(handler.NotFoundHandler)
 	router.MethodNotAllowedHandler = http.HandlerFunc(handler.MethodNotAllowedHandler)
