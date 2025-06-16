@@ -11,7 +11,6 @@ import (
 	"iter"
 	"maps"
 	"net/http"
-	"os"
 	"strconv"
 
 	"github.com/VictoriaMetrics/metrics"
@@ -23,25 +22,22 @@ var (
 )
 
 func Metrics(w http.ResponseWriter, r *http.Request) {
-	hostname, _ := os.Hostname()
-
 	clocks := []string{
 		"arm", "core", "dpi", "emmc", "h264",
 		"hdmi", "isp", "pixel", "pwm", "uart", "v3d", "vec",
 	}
 	for _, c := range clocks {
-		name := fmt.Sprintf(`rpi_clock_%s{node="%s"}`, c, hostname)
+		name := fmt.Sprintf(`rpi_clock_%s`, c)
 		rpi.GetOrCreateGauge(name, func() float64 { return clock(c) })
 	}
 
-	name := fmt.Sprintf(`rpi_temperature{node="%s"}`, hostname)
-	rpi.GetOrCreateGauge(name, temperature)
+	rpi.GetOrCreateGauge(`rpi_temperature`, func() float64 { return temperature() })
 
 	voltages := []string{
 		"core", "sdram_c", "sdram_i", "sdram_p",
 	}
 	for _, v := range voltages {
-		name := fmt.Sprintf(`rpi_voltage_%s{node="%s"}`, v, hostname)
+		name := fmt.Sprintf(`rpi_voltage_%s`, v)
 		rpi.GetOrCreateGauge(name, func() float64 { return voltage(v) })
 	}
 
