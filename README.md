@@ -31,13 +31,14 @@ Start the server on `localhost:8080` by default.
 ```
 For further configuration, see the command-line options below.
 
-| Flag            | Description                          | Default     |
-|-----------------|--------------------------------------|-------------|
-| `-H`, `--host`  | Host to bind the server to           | `localhost` |
-| `-p`, `--port`  | Port to run the server on            | `8080`      |
-| `-a`, `--auth`  | Enable bearer token authentication   | `false`     |
-| `-t`, `--token` | Bearer token used for authentication |             |
-| `-h`, `--help`  | Show help for the server command     |             |
+| Flag              | Description                          | Default     |
+|-------------------|--------------------------------------|-------------|
+| `-H`, `--host`    | Host to bind the server to           | `localhost` |
+| `-p`, `--port`    | Port to run the server on            | `8080`      |
+| `-a`, `--auth`    | Enable bearer token authentication   | `false`     |
+| `-t`, `--token`   | Bearer token used for authentication |             |
+| `-m`, `--metrics` | Enable Prometheus metrics endpoint   | `false`     |
+| `-h`, `--help`    | Show help for the server command     |             |
 
 Additional a systemd service file and environment file are provided in the
 [contrib directory](https://github.com/tschaefer/rpinfo/tree/main/contrib) for automatic startup on boot and management of the
@@ -56,6 +57,9 @@ server.
 All endpoints return JSON-formatted data.
 
 The complete API specification is available at `/redoc`.
+
+Additionally, the server supports an optional `/metrics` endpoint for
+Prometheus exposing clock, temperature, and voltage gauges.
 
 ## Security Notes
 

@@ -21,7 +21,7 @@ func init() {
 	serverCmd.Flags().StringP("host", "H", "localhost", "Host to run the server on")
 	serverCmd.Flags().BoolP("auth", "a", false, "Enable authentication")
 	serverCmd.Flags().StringP("token", "t", "", "Bearer Token for authentication")
-	serverCmd.Flags().BoolP("metrics", "m", false, "Enable metrics endpoint")
+	serverCmd.Flags().BoolP("metrics", "m", false, "Enable Prometheus metrics endpoint")
 
 	rootCmd.AddCommand(serverCmd)
 }
