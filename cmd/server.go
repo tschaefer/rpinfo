@@ -21,6 +21,7 @@ func init() {
 	serverCmd.Flags().StringP("host", "H", "localhost", "Host to run the server on")
 	serverCmd.Flags().BoolP("auth", "a", false, "Enable authentication")
 	serverCmd.Flags().StringP("token", "t", "", "Bearer Token for authentication")
+	serverCmd.Flags().BoolP("metrics", "m", false, "Enable metrics endpoint")
 
 	rootCmd.AddCommand(serverCmd)
 }
@@ -30,8 +31,9 @@ func RunServerCmd(cmd *cobra.Command, args []string) error {
 	host, _ := cmd.Flags().GetString("host")
 	auth, _ := cmd.Flags().GetBool("auth")
 	token, _ := cmd.Flags().GetString("token")
+	metrics, _ := cmd.Flags().GetBool("metrics")
 
-	server.Run(port, host, auth, token)
+	server.Run(port, host, auth, token, metrics)
 
 	return nil
 }
