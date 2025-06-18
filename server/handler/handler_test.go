@@ -272,3 +272,30 @@ func Test_MeasureClockReturnsServerErrorIfCommandFails(t *testing.T) {
 			status, http.StatusInternalServerError)
 	}
 }
+
+func Test_MetricsReturnsPrometheusText(t *testing.T) {
+	req := httptest.NewRequest("GET", "/metrics", nil)
+	rr := httptest.NewRecorder()
+
+	handler := http.HandlerFunc(Metrics)
+	handler.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v",
+			status, http.StatusOK)
+	}
+
+	expected := "rpi_clock_arm 0\nrpi_clock_core 0\nrpi_clock_dpi 0\n" +
+		"rpi_clock_emmc 0\nrpi_clock_h264 0\nrpi_clock_hdmi 0\n" +
+		"rpi_clock_isp 0\nrpi_clock_pixel 0\nrpi_clock_pwm 0\n" +
+		"rpi_clock_uart 0\nrpi_clock_v3d 0\nrpi_clock_vec 0\n" +
+		"rpi_temperature 0\nrpi_voltage_core 0\nrpi_voltage_sdram_c 0\n" +
+		"rpi_voltage_sdram_i 0\nrpi_voltage_sdram_p 0"
+
+	got := rr.Body.String()
+	got = strings.TrimSpace(got)
+	if got != expected {
+		t.Errorf("handler returned unexpected body: got %v want %v",
+			rr.Body.String(), expected)
+	}
+}

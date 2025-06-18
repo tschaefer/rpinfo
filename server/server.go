@@ -18,7 +18,7 @@ import (
 	"github.com/tschaefer/rpinfo/version"
 )
 
-func Run(port string, host string, auth bool, token string) {
+func Run(port string, host string, auth bool, token string, metrics bool) {
 	Handler := handler.Handle{Cmd: vcgencmd.Cmd{}}
 
 	router := mux.NewRouter()
@@ -28,6 +28,10 @@ func Run(port string, host string, auth bool, token string) {
 	router.Handle("/throttled", middleware.ApplyAll(auth, token, Handler.Throttled)).Methods(http.MethodGet)
 	router.Handle("/clock", middleware.ApplyAll(auth, token, Handler.Clock)).Methods(http.MethodGet)
 	router.PathPrefix("/redoc").Handler(http.StripPrefix("/redoc", http.FileServer(http.FS(assets.StaticContent))))
+
+	if metrics {
+		router.HandleFunc("/metrics", middleware.Authorization(auth, token, handler.Metrics)).Methods(http.MethodGet)
+	}
 
 	router.NotFoundHandler = http.HandlerFunc(handler.NotFoundHandler)
 	router.MethodNotAllowedHandler = http.HandlerFunc(handler.MethodNotAllowedHandler)
@@ -41,6 +45,6 @@ func Run(port string, host string, auth bool, token string) {
 	}
 
 	log.Printf("Starting rpinfo server. Version: %s - %s", version.Release(), version.Commit())
-	log.Printf("Listening on %s:%s, auth: %t", host, port, auth)
+	log.Printf("Listening on %s:%s, auth: %t, metrics: %t", host, port, auth, metrics)
 	log.Fatal(server.ListenAndServe())
 }
