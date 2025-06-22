@@ -21,19 +21,23 @@ func init() {
 	serverCmd.Flags().StringP("host", "H", "localhost", "Host to run the server on")
 	serverCmd.Flags().BoolP("auth", "a", false, "Enable authentication")
 	serverCmd.Flags().StringP("token", "t", "", "Bearer Token for authentication")
-	serverCmd.Flags().BoolP("metrics", "m", false, "Enable Prometheus metrics endpoint")
+	serverCmd.Flags().BoolP("metrics", "m", false, "Enable Prometheus metrics")
+	serverCmd.Flags().BoolP("redoc", "r", false, "Enable ReDoc API documentation")
 
 	rootCmd.AddCommand(serverCmd)
 }
 
 func RunServerCmd(cmd *cobra.Command, args []string) error {
-	port, _ := cmd.Flags().GetString("port")
-	host, _ := cmd.Flags().GetString("host")
-	auth, _ := cmd.Flags().GetBool("auth")
-	token, _ := cmd.Flags().GetString("token")
-	metrics, _ := cmd.Flags().GetBool("metrics")
+	var config server.Config
 
-	server.Run(port, host, auth, token, metrics)
+	config.Port, _ = cmd.Flags().GetString("port")
+	config.Host, _ = cmd.Flags().GetString("host")
+	config.Auth, _ = cmd.Flags().GetBool("auth")
+	config.Token, _ = cmd.Flags().GetString("token")
+	config.Metrics, _ = cmd.Flags().GetBool("metrics")
+	config.Redoc, _ = cmd.Flags().GetBool("redoc")
+
+	server.Run(config)
 
 	return nil
 }

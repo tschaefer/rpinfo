@@ -38,6 +38,7 @@ For further configuration, see the command-line options below.
 | `-a`, `--auth`    | Enable bearer token authentication   | `false`     |
 | `-t`, `--token`   | Bearer token used for authentication |             |
 | `-m`, `--metrics` | Enable Prometheus metrics endpoint   | `false`     |
+| `-r`, `--redoc`   | Enable ReDoc API documentation       | `false`     |
 | `-h`, `--help`    | Show help for the server command     |             |
 
 Additional a systemd service file and environment file are provided in the
