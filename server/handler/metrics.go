@@ -15,6 +15,7 @@ import (
 
 	"github.com/VictoriaMetrics/metrics"
 	"github.com/tschaefer/rpinfo/vcgencmd"
+	"github.com/tschaefer/rpinfo/version"
 )
 
 var (
@@ -40,6 +41,9 @@ func Metrics(w http.ResponseWriter, r *http.Request) {
 		name := fmt.Sprintf(`rpi_voltage_%s`, v)
 		rpi.GetOrCreateGauge(name, func() float64 { return voltage(v) })
 	}
+
+	w.Header().Set("X-Rpinfo-Commit", version.Commit())
+	w.Header().Set("X-Rpinfo-Version", version.Release())
 
 	var buffer bytes.Buffer
 	rpi.WritePrometheus(&buffer)
