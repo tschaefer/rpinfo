@@ -22,8 +22,9 @@ func (r Cmd) Run(args ...string) map[string]string {
 	if err != nil {
 		if out != nil {
 			log.Printf("vcgencmd error: %s", strings.TrimSpace(string(out)))
+		} else {
+			log.Printf("vcgencmd error: %s", err)
 		}
-		log.Printf("vcgencmd error: %s", err)
 		return nil
 	}
 
@@ -33,7 +34,7 @@ func (r Cmd) Run(args ...string) map[string]string {
 	for line := range strings.SplitSeq(output, "\n") {
 		parts := strings.SplitN(line, "=", 2)
 		if len(parts) != 2 {
-			log.Printf("skipping data: %s", line)
+			log.Printf("vcgencmd warn: skipping data: %s", line)
 			continue
 		}
 
