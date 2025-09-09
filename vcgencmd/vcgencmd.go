@@ -5,27 +5,28 @@ Licensed under the MIT license, see LICENSE in the project root for details.
 package vcgencmd
 
 import (
-	"log"
+	"fmt"
+	"log/slog"
 	"os/exec"
 	"strings"
 )
 
 type Exec interface {
-	Run(args ...string) map[string]string
+	Run(args ...string) (map[string]string, error)
 }
 
 type Cmd struct{}
 
-func (r Cmd) Run(args ...string) map[string]string {
+func (r Cmd) Run(args ...string) (map[string]string, error) {
 	execCommand := exec.Command("vcgencmd", args...)
 	out, err := execCommand.Output()
 	if err != nil {
 		if out != nil {
-			log.Printf("vcgencmd error: %s", strings.TrimSpace(string(out)))
+			err = fmt.Errorf("vcgencmd error: %s - %v", strings.TrimSpace(string(out)), err)
 		} else {
-			log.Printf("vcgencmd error: %s", err)
+			err = fmt.Errorf("vcgencmd error: %v", err)
 		}
-		return nil
+		return nil, err
 	}
 
 	output := strings.TrimSpace(string(out))
@@ -34,7 +35,7 @@ func (r Cmd) Run(args ...string) map[string]string {
 	for line := range strings.SplitSeq(output, "\n") {
 		parts := strings.SplitN(line, "=", 2)
 		if len(parts) != 2 {
-			log.Printf("vcgencmd warn: skipping data: %s", line)
+			slog.Warn(fmt.Sprintf("vcgencmd warn: skipping data: %s", line))
 			continue
 		}
 
@@ -43,5 +44,5 @@ func (r Cmd) Run(args ...string) map[string]string {
 		outputMap[key] = value
 	}
 
-	return outputMap
+	return outputMap, nil
 }

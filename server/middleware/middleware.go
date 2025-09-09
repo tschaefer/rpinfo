@@ -6,6 +6,7 @@ package middleware
 
 import (
 	"encoding/json"
+	"log/slog"
 	"net/http"
 	"strings"
 
@@ -31,6 +32,7 @@ func RequestHeaders(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		accept := r.Header.Get("Accept")
 		if accept == "" || (accept != "application/json" && accept != "*/*") {
+			go makeLog(r, http.StatusNotAcceptable, slog.LevelWarn, "not acceptable")
 			JSONError(w, http.StatusNotAcceptable, "not acceptable")
 			return
 		}
@@ -47,12 +49,14 @@ func Authorization(auth bool, token string, next http.HandlerFunc) http.HandlerF
 
 		bearer := r.Header.Get("Authorization")
 		if bearer == "" {
+			go makeLog(r, http.StatusUnauthorized, slog.LevelWarn, "unauthorized")
 			JSONError(w, http.StatusUnauthorized, "unauthorized")
 			return
 		}
 
 		parts := strings.SplitN(bearer, " ", 2)
 		if len(parts) != 2 || parts[0] != "Bearer" || parts[1] != token {
+			go makeLog(r, http.StatusForbidden, slog.LevelWarn, "forbidden")
 			JSONError(w, http.StatusForbidden, "forbidden")
 			return
 		}
@@ -68,4 +72,37 @@ func ApplyAll(auth bool, token string, next http.HandlerFunc) http.HandlerFunc {
 	next = ResponseHeaders(next)
 
 	return next
+}
+
+func makeLog(r *http.Request, status int, level slog.Level, msg string) {
+	forwardedHeaders := []string{
+		"X-Forwarded-For",
+		"X-Real-IP",
+	}
+	remoteAddr := r.RemoteAddr
+	for _, header := range forwardedHeaders {
+		if ip := r.Header.Get(header); ip != "" {
+			remoteAddr = ip
+			break
+		}
+	}
+
+	args := []any{
+		slog.String("RemoteAddr", remoteAddr),
+		slog.String("UserAgent", r.UserAgent()),
+		slog.Int("Status", status),
+		slog.String("RequestMethod", r.Method),
+		slog.String("RequestPath", r.RequestURI),
+	}
+
+	switch level {
+	case slog.LevelInfo:
+		slog.Info(msg, args...)
+	case slog.LevelWarn:
+		slog.Warn(msg, args...)
+	case slog.LevelError:
+		slog.Error(msg, args...)
+	default:
+		slog.Info(msg, args...)
+	}
 }
