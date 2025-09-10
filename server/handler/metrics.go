@@ -9,12 +9,12 @@ import (
 	"bytes"
 	"fmt"
 	"iter"
-	"log/slog"
 	"maps"
 	"net/http"
 	"strconv"
 
 	"github.com/VictoriaMetrics/metrics"
+	"github.com/tschaefer/rpinfo/server/log"
 	"github.com/tschaefer/rpinfo/vcgencmd"
 	"github.com/tschaefer/rpinfo/version"
 )
@@ -50,11 +50,11 @@ func Metrics(w http.ResponseWriter, r *http.Request) {
 	rpi.WritePrometheus(&buffer)
 	if _, err := w.Write(buffer.Bytes()); err != nil {
 
-		go makeLog(r, http.StatusInternalServerError, slog.LevelError, fmt.Sprintf("Failed to write metrics: %v", err))
+		go log.RequestError(r, http.StatusInternalServerError, fmt.Sprintf("Failed to write metrics: %v", err))
 		http.Error(w, "Failed to write metrics", http.StatusInternalServerError)
 		return
 	}
-	go makeLog(r, http.StatusOK, slog.LevelInfo, "Served metrics")
+	go log.RequestInfo(r, http.StatusOK, "Served metrics")
 }
 
 func clock(kind string) float64 {

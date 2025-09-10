@@ -7,11 +7,11 @@ package handler
 import (
 	"encoding/json"
 	"iter"
-	"log/slog"
 	"maps"
 	"net/http"
 	"strings"
 
+	"github.com/tschaefer/rpinfo/server/log"
 	"github.com/tschaefer/rpinfo/vcgencmd"
 )
 
@@ -25,7 +25,7 @@ func runCmd(h Handle, w http.ResponseWriter, r *http.Request, args ...string) ma
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
 
-		go makeLog(r, http.StatusInternalServerError, slog.LevelError, err.Error())
+		go log.RequestError(r, http.StatusInternalServerError, err.Error())
 		json.NewEncoder(w).Encode(map[string]string{"detail": "internal server error"})
 		return nil
 	}
@@ -39,7 +39,7 @@ func (h Handle) Temperature(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	go makeLog(r, http.StatusOK, slog.LevelInfo, "Fetched temperature")
+	go log.RequestInfo(r, http.StatusOK, "Fetched temperature")
 	json.NewEncoder(w).Encode(temp)
 }
 
@@ -55,7 +55,7 @@ func (h Handle) Configuration(w http.ResponseWriter, r *http.Request) {
 		maps.Copy(config, out)
 	}
 
-	go makeLog(r, http.StatusOK, slog.LevelInfo, "Fetched configuration")
+	go log.RequestInfo(r, http.StatusOK, "Fetched configuration")
 	json.NewEncoder(w).Encode(config)
 }
 
@@ -71,7 +71,7 @@ func (h Handle) Voltages(w http.ResponseWriter, r *http.Request) {
 		voltages[opt] = out["volt"]
 	}
 
-	go makeLog(r, http.StatusOK, slog.LevelInfo, "Fetched voltages")
+	go log.RequestInfo(r, http.StatusOK, "Fetched voltages")
 	json.NewEncoder(w).Encode(voltages)
 }
 
@@ -90,7 +90,7 @@ func (h Handle) Throttled(w http.ResponseWriter, r *http.Request) {
 		throttled["throttled"] = message
 	}
 
-	go makeLog(r, http.StatusOK, slog.LevelInfo, "Fetched throttled status")
+	go log.RequestInfo(r, http.StatusOK, "Fetched throttled status")
 	json.NewEncoder(w).Encode(throttled)
 }
 
@@ -118,39 +118,6 @@ func (h Handle) Clock(w http.ResponseWriter, r *http.Request) {
 		clock[opt] = value()
 	}
 
-	go makeLog(r, http.StatusOK, slog.LevelInfo, "Fetched clock rates")
+	go log.RequestInfo(r, http.StatusOK, "Fetched clock rates")
 	json.NewEncoder(w).Encode(clock)
-}
-
-func makeLog(r *http.Request, status int, level slog.Level, msg string) {
-	forwardedHeaders := []string{
-		"X-Forwarded-For",
-		"X-Real-IP",
-	}
-	remoteAddr := r.RemoteAddr
-	for _, header := range forwardedHeaders {
-		if ip := r.Header.Get(header); ip != "" {
-			remoteAddr = ip
-			break
-		}
-	}
-
-	args := []any{
-		slog.String("RemoteAddr", remoteAddr),
-		slog.String("UserAgent", r.UserAgent()),
-		slog.Int("Status", status),
-		slog.String("RequestMethod", r.Method),
-		slog.String("RequestPath", r.RequestURI),
-	}
-
-	switch level {
-	case slog.LevelInfo:
-		slog.Info(msg, args...)
-	case slog.LevelWarn:
-		slog.Warn(msg, args...)
-	case slog.LevelError:
-		slog.Error(msg, args...)
-	default:
-		slog.Info(msg, args...)
-	}
 }

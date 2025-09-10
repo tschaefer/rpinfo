@@ -9,6 +9,7 @@ import (
 	"log/slog"
 	"net/http"
 
+	"github.com/tschaefer/rpinfo/server/log"
 	"github.com/tschaefer/rpinfo/version"
 )
 
@@ -21,11 +22,11 @@ func JSONError(w http.ResponseWriter, status int, message string) {
 }
 
 func NotFoundHandler(w http.ResponseWriter, r *http.Request) {
-	go makeLog(r, http.StatusInternalServerError, slog.LevelError, "not found")
+	go log.Request(r, http.StatusInternalServerError, slog.LevelError, "not found")
 	JSONError(w, http.StatusNotFound, "not found")
 }
 
 func MethodNotAllowedHandler(w http.ResponseWriter, r *http.Request) {
-	go makeLog(r, http.StatusMethodNotAllowed, slog.LevelWarn, "method not allowed")
+	go log.Request(r, http.StatusMethodNotAllowed, slog.LevelWarn, "method not allowed")
 	JSONError(w, http.StatusMethodNotAllowed, "method not allowed")
 }
