@@ -75,9 +75,15 @@ func Request(r *http.Request, status int, level slog.Level, msg string) {
 		slog.Warn(msg, args...)
 	case slog.LevelError:
 		slog.Error(msg, args...)
+	case slog.LevelDebug:
+		slog.Debug(msg, args...)
 	default:
 		slog.Info(msg, args...)
 	}
+}
+
+func RequestDebug(r *http.Request, status int, msg string) {
+	Request(r, status, slog.LevelDebug, msg)
 }
 
 func RequestInfo(r *http.Request, status int, msg string) {
