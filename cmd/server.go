@@ -23,6 +23,8 @@ func init() {
 	serverCmd.Flags().StringP("token", "t", "", "Bearer Token for authentication")
 	serverCmd.Flags().BoolP("metrics", "m", false, "Enable Prometheus metrics")
 	serverCmd.Flags().BoolP("redoc", "r", false, "Enable ReDoc API documentation")
+	serverCmd.Flags().StringP("log-format", "f", "text", "Log format (text, structured, json)")
+	serverCmd.Flags().StringP("log-level", "l", "info", "Log level (debug, info, warn, error)")
 
 	rootCmd.AddCommand(serverCmd)
 }
@@ -36,6 +38,8 @@ func RunServerCmd(cmd *cobra.Command, args []string) error {
 	config.Token, _ = cmd.Flags().GetString("token")
 	config.Metrics, _ = cmd.Flags().GetBool("metrics")
 	config.Redoc, _ = cmd.Flags().GetBool("redoc")
+	config.LogFormat, _ = cmd.Flags().GetString("log-format")
+	config.LogLevel, _ = cmd.Flags().GetString("log-level")
 
 	server.Run(config)
 

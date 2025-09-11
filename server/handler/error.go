@@ -6,8 +6,10 @@ package handler
 
 import (
 	"encoding/json"
+	"log/slog"
 	"net/http"
 
+	"github.com/tschaefer/rpinfo/server/log"
 	"github.com/tschaefer/rpinfo/version"
 )
 
@@ -20,9 +22,11 @@ func JSONError(w http.ResponseWriter, status int, message string) {
 }
 
 func NotFoundHandler(w http.ResponseWriter, r *http.Request) {
+	go log.Request(r, http.StatusInternalServerError, slog.LevelError, "not found")
 	JSONError(w, http.StatusNotFound, "not found")
 }
 
 func MethodNotAllowedHandler(w http.ResponseWriter, r *http.Request) {
+	go log.Request(r, http.StatusMethodNotAllowed, slog.LevelWarn, "method not allowed")
 	JSONError(w, http.StatusMethodNotAllowed, "method not allowed")
 }

@@ -5,6 +5,7 @@ Licensed under the MIT license, see LICENSE in the project root for details.
 package handler
 
 import (
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -15,45 +16,45 @@ import (
 
 type mockRunnerSuccess struct{}
 
-func (m mockRunnerSuccess) Run(args ...string) map[string]string {
+func (m mockRunnerSuccess) Run(args ...string) (map[string]string, error) {
 	switch args[0] {
 	case "measure_temp":
-		return map[string]string{"temp": "45.0'C"}
+		return map[string]string{"temp": "45.0'C"}, nil
 	case "measure_volts":
 		switch args[1] {
 		case "core":
-			return map[string]string{"volt": "1.3500V"}
+			return map[string]string{"volt": "1.3500V"}, nil
 		case "sdram_c":
-			return map[string]string{"volt": "1.2000V"}
+			return map[string]string{"volt": "1.2000V"}, nil
 		case "sdram_i":
-			return map[string]string{"volt": "1.2000V"}
+			return map[string]string{"volt": "1.2000V"}, nil
 		case "sdram_p":
-			return map[string]string{"volt": "1.2250V"}
+			return map[string]string{"volt": "1.2250V"}, nil
 		default:
-			return nil
+			return nil, nil
 		}
 	case "get_config":
-		return map[string]string{"init_uart_clock": "0x2dc6c00", "overlay_prefix": "overlays/", "total_mem": "512"}
+		return map[string]string{"init_uart_clock": "0x2dc6c00", "overlay_prefix": "overlays/", "total_mem": "512"}, nil
 	case "get_throttled":
-		return map[string]string{"throttled": "0x50000"}
+		return map[string]string{"throttled": "0x50000"}, nil
 	case "measure_clock":
 		switch args[1] {
 		case "arm":
-			return map[string]string{"freq": "600000000"}
+			return map[string]string{"freq": "600000000"}, nil
 		case "core":
-			return map[string]string{"freq": "250000000"}
+			return map[string]string{"freq": "250000000"}, nil
 		default:
-			return map[string]string{"freq": "0"}
+			return map[string]string{"freq": "0"}, nil
 		}
 	default:
-		return nil
+		return nil, nil
 	}
 }
 
 type mockRunnerError struct{}
 
-func (m mockRunnerError) Run(args ...string) map[string]string {
-	return nil
+func (m mockRunnerError) Run(args ...string) (map[string]string, error) {
+	return nil, fmt.Errorf("command failed")
 }
 
 func Test_TemperatureReturnsJSON(t *testing.T) {

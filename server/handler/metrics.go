@@ -14,6 +14,7 @@ import (
 	"strconv"
 
 	"github.com/VictoriaMetrics/metrics"
+	"github.com/tschaefer/rpinfo/server/log"
 	"github.com/tschaefer/rpinfo/vcgencmd"
 	"github.com/tschaefer/rpinfo/version"
 )
@@ -48,9 +49,12 @@ func Metrics(w http.ResponseWriter, r *http.Request) {
 	var buffer bytes.Buffer
 	rpi.WritePrometheus(&buffer)
 	if _, err := w.Write(buffer.Bytes()); err != nil {
+
+		go log.RequestError(r, http.StatusInternalServerError, fmt.Sprintf("Failed to write metrics: %v", err))
 		http.Error(w, "Failed to write metrics", http.StatusInternalServerError)
 		return
 	}
+	go log.RequestInfo(r, http.StatusOK, "Served metrics")
 }
 
 func clock(kind string) float64 {
@@ -102,5 +106,10 @@ func voltage(kind string) float64 {
 
 func exec(args ...string) map[string]string {
 	h := Handle{Cmd: vcgencmd.Cmd{}}
-	return h.Cmd.Run(args...)
+	out, err := h.Cmd.Run(args...)
+	if err != nil {
+		return nil
+	}
+
+	return out
 }

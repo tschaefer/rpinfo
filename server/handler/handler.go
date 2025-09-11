@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/tschaefer/rpinfo/server/log"
 	"github.com/tschaefer/rpinfo/vcgencmd"
 )
 
@@ -18,11 +19,13 @@ type Handle struct {
 	Cmd vcgencmd.Exec
 }
 
-func runCmd(h Handle, w http.ResponseWriter, args ...string) map[string]string {
-	out := h.Cmd.Run(args...)
-	if out == nil {
+func runCmd(h Handle, w http.ResponseWriter, r *http.Request, args ...string) map[string]string {
+	out, err := h.Cmd.Run(args...)
+	if err != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
+
+		go log.RequestError(r, http.StatusInternalServerError, err.Error())
 		json.NewEncoder(w).Encode(map[string]string{"detail": "internal server error"})
 		return nil
 	}
@@ -31,11 +34,12 @@ func runCmd(h Handle, w http.ResponseWriter, args ...string) map[string]string {
 }
 
 func (h Handle) Temperature(w http.ResponseWriter, r *http.Request) {
-	temp := runCmd(h, w, "measure_temp")
+	temp := runCmd(h, w, r, "measure_temp")
 	if temp == nil {
 		return
 	}
 
+	go log.RequestInfo(r, http.StatusOK, "Fetched temperature")
 	json.NewEncoder(w).Encode(temp)
 }
 
@@ -43,7 +47,7 @@ func (h Handle) Configuration(w http.ResponseWriter, r *http.Request) {
 	options := []string{"int", "str"}
 	config := make(map[string]string)
 	for _, opt := range options {
-		out := runCmd(h, w, "get_config", opt)
+		out := runCmd(h, w, r, "get_config", opt)
 		if out == nil {
 			return
 		}
@@ -51,6 +55,7 @@ func (h Handle) Configuration(w http.ResponseWriter, r *http.Request) {
 		maps.Copy(config, out)
 	}
 
+	go log.RequestInfo(r, http.StatusOK, "Fetched configuration")
 	json.NewEncoder(w).Encode(config)
 }
 
@@ -58,7 +63,7 @@ func (h Handle) Voltages(w http.ResponseWriter, r *http.Request) {
 	options := []string{"core", "sdram_c", "sdram_i", "sdram_p"}
 	voltages := make(map[string]string)
 	for _, opt := range options {
-		out := runCmd(h, w, "measure_volts", opt)
+		out := runCmd(h, w, r, "measure_volts", opt)
 		if out == nil {
 			return
 		}
@@ -66,11 +71,12 @@ func (h Handle) Voltages(w http.ResponseWriter, r *http.Request) {
 		voltages[opt] = out["volt"]
 	}
 
+	go log.RequestInfo(r, http.StatusOK, "Fetched voltages")
 	json.NewEncoder(w).Encode(voltages)
 }
 
 func (h Handle) Throttled(w http.ResponseWriter, r *http.Request) {
-	throttled := runCmd(h, w, "get_throttled")
+	throttled := runCmd(h, w, r, "get_throttled")
 	if throttled == nil {
 		return
 	}
@@ -84,6 +90,7 @@ func (h Handle) Throttled(w http.ResponseWriter, r *http.Request) {
 		throttled["throttled"] = message
 	}
 
+	go log.RequestInfo(r, http.StatusOK, "Fetched throttled status")
 	json.NewEncoder(w).Encode(throttled)
 }
 
@@ -95,7 +102,7 @@ func (h Handle) Clock(w http.ResponseWriter, r *http.Request) {
 	}
 	clock := make(map[string]string)
 	for _, opt := range options {
-		out := runCmd(h, w, "measure_clock", opt)
+		out := runCmd(h, w, r, "measure_clock", opt)
 		if out == nil {
 			return
 		}
@@ -111,5 +118,6 @@ func (h Handle) Clock(w http.ResponseWriter, r *http.Request) {
 		clock[opt] = value()
 	}
 
+	go log.RequestInfo(r, http.StatusOK, "Fetched clock rates")
 	json.NewEncoder(w).Encode(clock)
 }

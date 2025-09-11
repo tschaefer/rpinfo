@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/tschaefer/rpinfo/server/log"
 	"github.com/tschaefer/rpinfo/version"
 )
 
@@ -31,6 +32,7 @@ func RequestHeaders(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		accept := r.Header.Get("Accept")
 		if accept == "" || (accept != "application/json" && accept != "*/*") {
+			go log.RequestWarn(r, http.StatusNotAcceptable, "not acceptable")
 			JSONError(w, http.StatusNotAcceptable, "not acceptable")
 			return
 		}
@@ -47,12 +49,14 @@ func Authorization(auth bool, token string, next http.HandlerFunc) http.HandlerF
 
 		bearer := r.Header.Get("Authorization")
 		if bearer == "" {
+			go log.RequestWarn(r, http.StatusUnauthorized, "unauthorized")
 			JSONError(w, http.StatusUnauthorized, "unauthorized")
 			return
 		}
 
 		parts := strings.SplitN(bearer, " ", 2)
 		if len(parts) != 2 || parts[0] != "Bearer" || parts[1] != token {
+			go log.RequestWarn(r, http.StatusForbidden, "forbidden")
 			JSONError(w, http.StatusForbidden, "forbidden")
 			return
 		}
