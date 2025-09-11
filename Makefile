@@ -3,7 +3,7 @@ GitCommit := $(shell git rev-parse HEAD)
 LDFLAGS := "-s -w -X github.com/tschaefer/rpinfo/version.Version=$(Version) -X github.com/tschaefer/rpinfo/version.GitCommit=$(GitCommit)"
 
 .PHONY: all
-all: fmt lint dist
+all: fmt lint test dist
 
 .PHONY: fmt
 fmt:
@@ -28,6 +28,10 @@ checksum:
 		sha256sum $$f > $$f.sha256; \
 	done && \
 	cd ..
+
+.PHONY: test
+test:
+	test -z $(shell go test ./... 2>&1 >/dev/null || echo 1) || (echo "[WARN] Fix test issues" && exit 1)
 
 .PHONY: clean
 clean:
