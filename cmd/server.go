@@ -17,14 +17,14 @@ var serverCmd = &cobra.Command{
 }
 
 func init() {
-	serverCmd.Flags().String("port", "8080", "Port to run the server on")
-	serverCmd.Flags().String("host", "localhost", "Host to run the server on")
-	serverCmd.Flags().Bool("auth", false, "Enable authentication")
-	serverCmd.Flags().String("token", "", "Bearer Token for authentication")
-	serverCmd.Flags().Bool("metrics", false, "Enable Prometheus metrics")
-	serverCmd.Flags().Bool("redoc", false, "Enable ReDoc API documentation")
-	serverCmd.Flags().String("log-format", "text", "Log format (text, structured, json)")
-	serverCmd.Flags().String("log-level", "info", "Log level (debug, info, warn, error)")
+	serverCmd.Flags().StringP("port", "p", "8080", "Port to run the server on")
+	serverCmd.Flags().StringP("host", "H", "localhost", "Host to run the server on")
+	serverCmd.Flags().BoolP("auth", "a", false, "Enable authentication")
+	serverCmd.Flags().StringP("token", "t", "", "Bearer Token for authentication")
+	serverCmd.Flags().BoolP("metrics", "m", false, "Enable Prometheus metrics")
+	serverCmd.Flags().BoolP("redoc", "r", false, "Enable ReDoc API documentation")
+	serverCmd.Flags().StringP("log-format", "f", "text", "Log format (text, structured, json)")
+	serverCmd.Flags().StringP("log-level", "l", "info", "Log level (debug, info, warn, error)")
 
 	rootCmd.AddCommand(serverCmd)
 }
