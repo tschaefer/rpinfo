@@ -23,7 +23,7 @@ func init() {
 	serverCmd.Flags().StringP("token", "t", "", "Bearer Token for authentication")
 	serverCmd.Flags().BoolP("metrics", "m", false, "Enable Prometheus metrics")
 	serverCmd.Flags().BoolP("redoc", "r", false, "Enable ReDoc API documentation")
-	serverCmd.Flags().StringP("log-format", "f", "text", "Log format (text, structured, json)")
+	serverCmd.Flags().StringP("log-format", "f", "structured", "Log format (structured, json)")
 	serverCmd.Flags().StringP("log-level", "l", "info", "Log level (debug, info, warn, error)")
 
 	rootCmd.AddCommand(serverCmd)

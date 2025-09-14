@@ -31,17 +31,17 @@ Start the server on `localhost:8080` by default.
 ```
 For further configuration, see the command-line options below.
 
-| Flag                 | Description                                     | Default     |
-|----------------------|-------------------------------------------------|-------------|
-| `-H`, `--host`       | Host to bind the server to                      | `localhost` |
-| `-p`, `--port`       | Port to run the server on                       | `8080`      |
-| `-a`, `--auth`       | Enable bearer token authentication              | `false`     |
-| `-t`, `--token`      | Bearer token used for authentication            |             |
-| `-m`, `--metrics`    | Enable Prometheus metrics endpoint              | `false`     |
-| `-r`, `--redoc`      | Enable ReDoc API documentation                  | `false`     |
-| `-f`, `--log-format` | Set log format: `text`, `structured`, `json`    | `text`      |
-| `-l`, `--log-level`  | Set log level: `debug`, `info`, `warn`, `error` | `info`      |
-| `-h`, `--help`       | Show help for the server command                |             |
+| Flag                 | Description                                     | Default      |
+|----------------------|-------------------------------------------------|--------------|
+| `-H`, `--host`       | Host to bind the server to                      | `localhost`  |
+| `-p`, `--port`       | Port to run the server on                       | `8080`       |
+| `-a`, `--auth`       | Enable bearer token authentication              | `false`      |
+| `-t`, `--token`      | Bearer token used for authentication            |              |
+| `-m`, `--metrics`    | Enable Prometheus metrics endpoint              | `false`      |
+| `-r`, `--redoc`      | Enable ReDoc API documentation                  | `false`      |
+| `-f`, `--log-format` | Set log format: `structured`, `json`            | `structured` |
+| `-l`, `--log-level`  | Set log level: `debug`, `info`, `warn`, `error` | `info`       |
+| `-h`, `--help`       | Show help for the server command                |              |
 
 Additional a systemd service file and environment file are provided in the
 [contrib directory](https://github.com/tschaefer/rpinfo/tree/main/contrib) for automatic startup on boot and management of the

@@ -30,7 +30,7 @@ func Test_LoggerReturnsErrorIfFormatIsUnknown(t *testing.T) {
 
 func Test_LoggerReturnsNoErrorIfLevelAndFormatAreKnown(t *testing.T) {
 	levels := []string{"debug", "info", "warn", "error"}
-	formats := []string{"structured", "json", "text"}
+	formats := []string{"structured", "json"}
 
 	for _, level := range levels {
 		for _, format := range formats {

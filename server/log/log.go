@@ -36,9 +36,6 @@ func Logger(level, format string) error {
 		logger = slog.New(slog.NewTextHandler(os.Stdout, opts))
 	case "json":
 		logger = slog.New(slog.NewJSONHandler(os.Stdout, opts))
-	case "text":
-		// Use default logger, print info level only.
-		return nil
 	default:
 		return fmt.Errorf("unknown log format: %s", format)
 	}
