@@ -3,7 +3,7 @@ module github.com/tschaefer/rpinfo
 go 1.24.2
 
 require (
-	github.com/VictoriaMetrics/metrics v1.44.0
+	github.com/VictoriaMetrics/metrics v1.44.1
 	github.com/gorilla/mux v1.8.1
 	github.com/spf13/cobra v1.10.2
 	github.com/stretchr/testify v1.12.1
