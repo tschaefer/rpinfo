@@ -1,6 +1,6 @@
 module github.com/tschaefer/rpinfo
 
-go 1.24.2
+go 1.27.3
 
 require (
 	github.com/VictoriaMetrics/metrics v1.44.1
